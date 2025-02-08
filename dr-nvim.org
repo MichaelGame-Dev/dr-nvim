@@ -1,0 +1,92 @@
+
+#+title: DragonRuby Neovim
+
+* DragonRuby Neovim
+
+  This is a list of suggestions for using DragonRuby Game ToolKit with Neovim.
+
+  *NOTE* This is not for general neovim support. Suggestions/tweaks are welcome, issues opened for gneral support will be closed. I am still very new to Neovim, so I strongly suspect there are better ways to do things!
+
+  For refrence, I am using [[https://github.com/nvim-lua/kickstart.nvim][Kickstart.nvim]] as my base config. cwd = current working directory.
+
+
+** Navigating through files quickly
+  I'm personally using [[https://github.com/nvim-telescope/telescope.nvim][Telescope.nvim]] for my fuzzy finder. As is, it will exclude files in ~.gitignore~. If your repo is public and you're excluding the files required to be excluded in the [[https://docs.dragonruby.org/#/guides/starting-a-new-project?id=option-1-recommended][DragonRuby Docs]], this will help some.
+
+  However, me personally, I wanted to exclude ~/samples/~ and ~/builds/~ but still sync those via git. You can also create a ~.rgignore~ file in the projects base directory and it will skip those files/folders too. I also excluded:
+
+~CHANGELOG-CURR.txt~
+~CHANGELOG-PREV.txt~
+~/docs/changelog.txt~
+~ctags-vim~
+~ctags-emacs~
+
+  This way when I do something like grep or try to open a file in the cwd those are excluded.
+
+** Grep the docs!
+   One thing I wanted to add was a way to grep the docs. I added the following code just after ~require('telescope').setup {~
+
+
+   #+BEGIN_SRC lua
+
+      -- Function to grep DragonRuby API docs
+      local function grep_dragonruby_api()
+        require('telescope.builtin').live_grep {
+          search_dirs = { 'docs/api' },
+          prompt_title = 'Live Grep API Docs',
+        }
+      end
+
+      -- Create the keymap dynamically if in a DragonRuby folder
+      local cwd = vim.fn.getcwd()
+      if cwd:match 'dragonruby' then
+        vim.keymap.set('n', '<leader>gd', grep_dragonruby_api, { desc = '[G]rep [D]ocs/api in DragonRuby projects' })
+      end
+   #+END_SRC
+
+   What does this do? It allows you to grep the doc files whenever the cwd contains dragonruby. If you use a differnt path for DR, feel free to tweak.
+
+   I also added [[https://github.com/MeanderingProgrammer/render-markdown.nvim] Render markdown.nvim]]. to more easily view the docs.
+
+   #+BEGIN_SRC lua
+
+   return {
+           'MeanderingProgrammer/render-markdown.nvim',
+           dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
+           -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+           -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+           ---@module 'render-markdown'
+           ---@type render.md.UserConfig
+           opts = {},
+   }
+   #+END_SRC
+
+** Solargraph
+   For me to get things working properly, I had to add a ~.solargraph.yml~ without this, solargraph wouldn't start. Using Kickstart.nvim I was able to add it via ~:Mason~. If you have setup the ~.solargraph.yml~ file to work with the [[https://github.com/owenbutler/dragonruby-yard-doc][DragonRuby Yard Docs]], this should be picked up.
+
+   Example of my ~.solargraph.yml~
+   #+BEGIN_SRC yaml
+---
+include:
+  - "mygame/**/*.rb"
+  - "../dragonruby-yard-doc/*.rb"
+exclude:
+  - spec/**/*
+  - test/**/*
+  - vendor/**/*
+  - ".bundle/**/*"
+require: []
+domains: []
+reporters:
+  #- rubocop
+  - require_not_found
+formatter:
+  rubocop:
+    cops: safe
+    except: []
+    only: []
+    extra_args: []
+require_paths: []
+plugins: []
+max_files: 5000
+   #+END_SRC
