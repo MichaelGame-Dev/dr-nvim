@@ -45,7 +45,7 @@
 
    What does this do? It allows you to grep the doc files whenever the cwd contains dragonruby. If you use a differnt path for DR, feel free to tweak.
 
-   I also added [[https://github.com/MeanderingProgrammer/render-markdown.nvim]Render-markdown.nvim]]. to more easily view the docs.
+   I also added [[https://github.com/MeanderingProgrammer/render-markdown.nvim[Render-markdown.nvim]]. to more easily view the docs.
 
    #+BEGIN_SRC lua
 
