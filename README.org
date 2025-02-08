@@ -1,7 +1,6 @@
 
 #+title: DragonRuby Neovim
 
-* DragonRuby Neovim
 
   This is a list of suggestions for using DragonRuby Game ToolKit with Neovim.
 
